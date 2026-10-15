@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">CineMotion Camera</string>
+    <string name="camera_permission_required">Izin Kamera Diperlukan</string>
+    <string name="camera_permission_desc">Aplikasi membutuhkan akses kamera dan mikrofon untuk merekam video resolusi tinggi dengan stabilisasi hardware.</string>
+    <string name="grant_permission">Berikan Izin</string>
+    
+    <!-- Modes -->
+    <string name="mode_video">VIDEO</string>
+    <string name="mode_cinematic">CINEMATIC</string>
+    <string name="mode_photo">FOTO</string>
+    <string name="mode_live">FOTO LIVE</string>
+    
+    <!-- Stabilizer -->
+    <string name="stabilizer_title">Stabilisasi Video</string>
+    <string name="stabilizer_ois">OIS (Optik Lensa)</string>
+    <string name="stabilizer_eis">EIS (Elektronik ISP)</string>
+    <string name="stabilizer_off">Nonaktif</string>
+    <string name="stabilizer_ois_desc">Menggunakan suspensi magnetik fisik lensa tanpa pemotongan digital (Direkomendasikan)</string>
+    <string name="stabilizer_eis_desc">Menggunakan sensor giroskop ISP untuk meredam goyangan langkah kaki</string>
+    
+    <!-- Quality and Frame Rate -->
+    <string name="quality_4k">4K</string>
+    <string name="quality_fhd">1080P</string>
+    <string name="fps_30">30</string>
+    <string name="fps_60">60</string>
+    <string name="fps_24">24</string>
+    
+    <!-- Controls -->
+    <string name="action_shutter">Ambil Foto</string>
+    <string name="action_record_start">Mulai Rekam</string>
+    <string name="action_record_stop">Hentikan Rekam</string>
+    <string name="action_switch_camera">Ganti Kamera</string>
+    <string name="action_flash">Flash</string>
+    <string name="action_settings">Pengaturan</string>
+    <string name="action_gallery">Galeri</string>
+    <string name="action_close">Tutup</string>
+    
+    <!-- Zoom -->
+    <string name="zoom_label">%1$.1fx</string>
+    
+    <!-- Settings Sheet -->
+    <string name="settings_title">Pengaturan Hardware &amp; ISP</string>
+    <string name="settings_stabilization">Stabilisasi Hardware</string>
+    <string name="settings_stabilization_desc">Mengaktifkan modul OIS magnetik dan ISP Preview Stabilization</string>
+    <string name="settings_resolution">Resolusi Perekaman</string>
+    <string name="settings_framerate">Target Frame Rate</string>
+    <string name="settings_grid">Garis Bantu &amp; Waterpass</string>
+    <string name="settings_grid_desc">Tampilkan grid komposisi 3x3 dan indikator kemiringan</string>
+    <string name="settings_bitrate">High Bitrate Encoding</string>
+    <string name="settings_bitrate_desc">Bitrate tinggi (hingga 50 Mbps) untuk ketajaman tanpa kompresi agresif</string>
+    
+    <!-- Live Photo & Gallery -->
+    <string name="live_photo_badge">LIVE</string>
+    <string name="live_photo_hold_hint">Tekan dan tahan untuk memutar klip gerak</string>
+    <string name="gallery_title">Hasil Tangkapan</string>
+    <string name="gallery_empty">Belum ada foto atau video yang diambil</string>
+    <string name="gallery_details">Detail Metadata</string>
+    <string name="metadata_resolution">Resolusi</string>
+    <string name="metadata_size">Ukuran File</string>
+    <string name="metadata_duration">Durasi</string>
+    <string name="metadata_type">Format</string>
+    <string name="recording_indicator">REC</string>
+</resources>

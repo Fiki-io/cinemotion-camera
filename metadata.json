@@ -1,0 +1,6 @@
+{
+  "name": "CineMotion Camera",
+  "description": "Professional camera with ultra-steady EIS+OIS video, smooth zoom, and Motion Photo capture.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

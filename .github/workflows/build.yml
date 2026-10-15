@@ -1,0 +1,52 @@
+name: Build CineMotion APK with Native Gyro EIS
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configure Pre-installed NDK & CMake
+        run: |
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+          LATEST_NDK=$(ls -d $ANDROID_HOME/ndk/* 2>/dev/null | sort -V | tail -n 1)
+          if [ -n "$LATEST_NDK" ]; then
+            echo "Using pre-installed NDK at: $LATEST_NDK"
+            echo "ANDROID_NDK_ROOT=$LATEST_NDK" >> $GITHUB_ENV
+            echo "ANDROID_NDK_HOME=$LATEST_NDK" >> $GITHUB_ENV
+          else
+            echo "Searching system for pre-installed NDK..."
+            FIND_NDK=$(find /usr/local/lib/android/sdk/ndk -maxdepth 1 -mindepth 1 2>/dev/null | sort -V | tail -n 1)
+            if [ -n "$FIND_NDK" ]; then
+              echo "Using found NDK at: $FIND_NDK"
+              echo "ANDROID_NDK_ROOT=$FIND_NDK" >> $GITHUB_ENV
+              echo "ANDROID_NDK_HOME=$FIND_NDK" >> $GITHUB_ENV
+            fi
+          fi
+
+      - name: Grant Execute Permission for Gradle
+        run: chmod +x ./gradlew || true
+
+      - name: Build Debug APK with Native C++ EIS
+        run: ./gradlew assembleDebug -PenableNdk=true --stacktrace
+
+      - name: Upload Debug APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CineMotion-Debug-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
