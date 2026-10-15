@@ -21,29 +21,50 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Configure Pre-installed NDK & CMake
+      - name: Setup Gradle Build Cache v4
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
+      - name: Configure Pre-installed Android NDK & SDK
         run: |
-          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
-          LATEST_NDK=$(ls -d $ANDROID_HOME/ndk/* 2>/dev/null | sort -V | tail -n 1)
-          if [ -n "$LATEST_NDK" ]; then
-            echo "Using pre-installed NDK at: $LATEST_NDK"
-            echo "ANDROID_NDK_ROOT=$LATEST_NDK" >> $GITHUB_ENV
-            echo "ANDROID_NDK_HOME=$LATEST_NDK" >> $GITHUB_ENV
+          echo "Configuring pre-installed Android NDK and SDK paths..."
+          if [ -d "/usr/local/lib/android/sdk/ndk/27.3.13750724" ]; then
+            NDK_DIR="/usr/local/lib/android/sdk/ndk/27.3.13750724"
           else
-            echo "Searching system for pre-installed NDK..."
-            FIND_NDK=$(find /usr/local/lib/android/sdk/ndk -maxdepth 1 -mindepth 1 2>/dev/null | sort -V | tail -n 1)
-            if [ -n "$FIND_NDK" ]; then
-              echo "Using found NDK at: $FIND_NDK"
-              echo "ANDROID_NDK_ROOT=$FIND_NDK" >> $GITHUB_ENV
-              echo "ANDROID_NDK_HOME=$FIND_NDK" >> $GITHUB_ENV
-            fi
+            NDK_DIR=$(ls -d /usr/local/lib/android/sdk/ndk/* 2>/dev/null | sort -V | tail -n 1)
           fi
+          echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=/usr/local/lib/android/sdk" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$NDK_DIR" >> $GITHUB_ENV
+          echo "ANDROID_NDK_ROOT=$NDK_DIR" >> $GITHUB_ENV
+          echo "Selected NDK path: $NDK_DIR"
 
       - name: Grant Execute Permission for Gradle
         run: chmod +x ./gradlew || true
 
       - name: Build Debug APK with Native C++ EIS
-        run: ./gradlew assembleDebug -PenableNdk=true --stacktrace
+        run: ./gradlew assembleDebug -PenableNdk=true --build-cache --stacktrace
+
+      - name: Upload APK Directly to Gofile
+        id: upload_gofile
+        run: |
+          echo "Uploading app-debug.apk directly to Gofile..."
+          UPLOAD_RES=$(curl -s -X POST https://store3.gofile.io/contents/uploadfile -F "file=@app/build/outputs/apk/debug/app-debug.apk")
+          echo "Raw response: $UPLOAD_RES"
+          DOWNLOAD_PAGE=$(echo "$UPLOAD_RES" | grep -o '"downloadPage":"[^"]*"' | cut -d'"' -f4)
+          
+          if [ -n "$DOWNLOAD_PAGE" ]; then
+            echo "=================================================="
+            echo "GOFILE DOWNLOAD LINK: $DOWNLOAD_PAGE"
+            echo "=================================================="
+            echo "### 🚀 CineMotion Native APK Built Successfully!" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Direct Gofile Download Link: **[$DOWNLOAD_PAGE]($DOWNLOAD_PAGE)**" >> $GITHUB_STEP_SUMMARY
+            echo "Keystore: debug.keystore (Pre-configured)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Upload to Gofile failed or returned unexpected format."
+          fi
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
