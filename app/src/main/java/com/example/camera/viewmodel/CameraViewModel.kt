@@ -39,7 +39,10 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
         cachedSurfaceProvider = surfaceProvider
         if (hardwareController == null) {
             hardwareController = CameraHardwareController(getApplication(), lifecycleOwner).apply {
-                initialize(surfaceProvider) {
+                initialize(
+                    surfaceProvider = surfaceProvider,
+                    onError = { err -> showStatus(err) }
+                ) {
                     viewModelScope.launch {
                         zoomRatio.collect { currentZoom ->
                             _uiState.update { it.copy(zoomRatio = currentZoom) }

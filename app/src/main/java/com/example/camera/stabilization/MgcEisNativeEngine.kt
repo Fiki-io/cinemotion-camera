@@ -13,8 +13,7 @@ internal class MgcEisNativeEngine {
     private val rowHomographiesBuffer = FloatArray(STRIP_COUNT * 9)
     private val stateBuffer = FloatArray(4)
 
-    fun initialize(width: Int, height: Int, frontFacing: Boolean, strength: Float = 1.0f): Boolean {
-        if (!MgcEisNativeBridge.isAvailable) return false
+    fun initialize(width: Int, height: Int, frontFacing: Boolean, strength: Float = 1.0f) {
         release()
         handle = MgcEisNativeBridge.create(
             width = width,
@@ -23,11 +22,13 @@ internal class MgcEisNativeEngine {
             strength = strength.coerceIn(0f, 1f),
             lookaheadFrames = LOOKAHEAD_FRAME_COUNT
         )
-        return handle != 0L
+        check(handle != 0L) {
+            "Inisialisasi C++ MGC EIS Engine gagal (handle bernilai 0)."
+        }
     }
 
     fun feedGyro(x: Float, y: Float, z: Float, timestampNs: Long): Boolean {
-        if (handle == 0L) return false
+        check(handle != 0L) { "C++ MGC EIS Engine belum diinisialisasi." }
         return MgcEisNativeBridge.processGyro(handle, x, y, z, timestampNs)
     }
 
@@ -40,7 +41,7 @@ internal class MgcEisNativeEngine {
         activeArray: Rect,
         focalLengthMm: Float
     ): FloatArray? {
-        if (handle == 0L) return null
+        check(handle != 0L) { "C++ MGC EIS Engine belum diinisialisasi." }
 
         val resultTimestamp = MgcEisNativeBridge.processFrame(
             handle = handle,

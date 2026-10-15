@@ -14,19 +14,25 @@ class RealtimeStabilizationCoordinator(
     private val context: Context
 ) : SensorEventListener {
 
-    private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
-    private val gyroscope = sensorManager?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+    private val sensorManager = requireNotNull(
+        context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+    ) { "SensorManager sistem tidak tersedia." }
+    private val gyroscope = requireNotNull(
+        sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+    ) { "Sensor Giroskop fisik tidak ditemukan pada perangkat." }
     private val nativeEngine = MgcEisNativeEngine()
 
     private var isRunning = false
-    private val scope = CoroutineScope(Dispatchers.Default)
 
     fun start(width: Int, height: Int, frontFacing: Boolean) {
         if (isRunning) return
         nativeEngine.initialize(width, height, frontFacing)
-        gyroscope?.let { sensor ->
-            sensorManager?.registerListener(this, sensor, SensorManager.SENSOR_DELAY_FASTEST)
-        }
+        val registered = sensorManager.registerListener(
+            this,
+            gyroscope,
+            SensorManager.SENSOR_DELAY_FASTEST
+        )
+        check(registered) { "Gagal mendaftarkan listener giroskop ke hardware." }
         isRunning = true
     }
 

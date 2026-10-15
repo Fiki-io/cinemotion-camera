@@ -92,8 +92,14 @@ class CameraHardwareController(
     private var currentFlashMode = FlashMode.OFF
 
     private var recordingTimerJob: kotlinx.coroutines.Job? = null
+    private var globalErrorHandler: ((String) -> Unit)? = null
 
-    fun initialize(surfaceProvider: Preview.SurfaceProvider, onReady: () -> Unit) {
+    fun initialize(
+        surfaceProvider: Preview.SurfaceProvider,
+        onError: (String) -> Unit = {},
+        onReady: () -> Unit
+    ) {
+        globalErrorHandler = onError
         val providerFuture = ProcessCameraProvider.getInstance(context)
         providerFuture.addListener({
             cameraProvider = providerFuture.get()
@@ -175,20 +181,8 @@ class CameraHardwareController(
                 _maxZoom.value = state.maxZoomRatio.coerceAtMost(CameraConstants.MAX_ZOOM_FALLBACK)
             }
             stabilizationCoordinator.start(currentResolution.width, currentResolution.height, isFront)
-        } catch (_: Exception) {
-            // Fallback: Bind without videoCapture if simultaneous binding fails on specific vendor HAL
-            try {
-                camera = provider.bindToLifecycle(
-                    lifecycleOwner,
-                    cameraSelector,
-                    preview,
-                    imageCapture
-                )
-                cameraControl = camera?.cameraControl
-                cameraInfo = camera?.cameraInfo
-            } catch (_: Exception) {
-                // Keep resilient
-            }
+        } catch (e: Exception) {
+            globalErrorHandler?.invoke("Inisialisasi Kamera / C++ Native EIS gagal: ${e.message}")
         }
     }
 

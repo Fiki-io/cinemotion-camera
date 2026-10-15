@@ -1,11 +1,8 @@
 package com.example.camera.stabilization
 
 internal object MgcEisNativeBridge {
-    val isAvailable: Boolean = try {
+    init {
         System.loadLibrary("cinemotion-native")
-        true
-    } catch (_: Throwable) {
-        false
     }
 
     external fun create(
